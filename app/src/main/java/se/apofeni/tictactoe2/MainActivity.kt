@@ -17,6 +17,10 @@ import se.apofeni.tictactoe2.ui.theme.TicTacToeTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import androidx.compose.material3.Button
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import java.util.Locale
 
 class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener  {
@@ -32,6 +36,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener  {
         enableEdgeToEdge()
         setContent {
             TicTacToeTheme {
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
                     Column {
@@ -42,12 +47,13 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener  {
 
                         InfoText(viewModel = viewModel)
                         BoardView()
+
+                    }
                     }
 
                 }
             }
         }
-    }
 
     // Called when TTS is initialized
     override fun onInit(status: Int) {
@@ -83,13 +89,48 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener  {
 
 }
 
+
+
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+    val navController = rememberNavController()
+    Column{
+        Text(
+            text = "Hello $name!",
+            modifier = modifier
+        )
+        NavHost(navController = navController, startDestination = "firstView") {
+            composable("firstView") {
+                FirstView { navController.navigate("secondView") } // Navigate to second view
+            }
+            composable("secondView") {
+                SecondView { navController.popBackStack() } // Go back to the first view
+            }
+        }
+    }
+
 }
+
+@Composable
+fun FirstView(onNavigate: () -> Unit) {
+    Column {
+        Text("This is the First View")
+        Button(onClick = onNavigate) {
+            Text("Go to Second View")
+        }
+    }
+}
+
+@Composable
+fun SecondView(onNavigateBack: () -> Unit) {
+    Column {
+        Text("This is the Second View")
+        Button(onClick = onNavigateBack) {
+            Text("Go Back to First View")
+        }
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
